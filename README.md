@@ -1,14 +1,19 @@
-![status: inactive](https://img.shields.io/badge/status-inactive-red.svg)
-
-This project is no longer actively developed or maintained.  
-
-appengine-angular-guestbook-java
+# DitherStop
 ================================
 
-Yet another guestbook sample with angularjs, jersey, and App Engine
-Java. You can build this project using Maven.
+Based on a Google sample project.
 
-Author: Takashi Matsuo <tmatsuo@google.com>
+## Goal
+DitherStop.com is an application made in order to help Steam Gamers make an informed choice on the next game that is already in their account to play. This will be based on several things.  
+
+* User ratings scraped off Steam
+* A history of os user play times by tags or genre
+* other stuff
+
+## Backgroung
+I buy a lot of bundles and only have a vague idea of most of the games in my library so I wanted a tool to help me choose an order to play them in. Thus the original Dither Stop was made in a simple AWS LAMP instance. I want to move DitherStop off AWS onto Google App Engine, hense this project. This is also a project to allow some of my students at San Jose State University to help learn Angular app coding.
+
+Author: Thaddeus Aid <thaddeus.aid@gmail.com>
 
 ## Project Setup
 Install [Apache Maven][1] and [Karma][2] if you haven't. See the links
@@ -46,8 +51,9 @@ command:
 
 ## TODO
 
-* Integrate Karma javascript tests with Maven.
-* Write the end-to-end tests.
+* Integrate Karma javascript tests with Maven.  
+* Write the end-to-end tests.  
+* Write scraping program for harvesting information off [Steam](http://store.steampowered.com/)  
 
 ## Contributing changes
 
