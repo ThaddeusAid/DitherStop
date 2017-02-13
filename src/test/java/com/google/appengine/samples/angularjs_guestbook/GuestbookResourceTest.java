@@ -22,9 +22,9 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.mockito.Mockito.*;
 
-import com.google.appengine.samples.angularjs_guestbook.config.Resources;
-import com.google.appengine.samples.angularjs_guestbook.domain.Greeting;
-import com.google.appengine.samples.angularjs_guestbook.domain.GuestbookResponse;
+import com.ditherstop.app.config.Resources;
+import com.ditherstop.app.domain.Greeting;
+import com.ditherstop.app.domain.GuestbookResponse;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
 import com.google.appengine.tools.development.testing.LocalUserServiceTestConfig;

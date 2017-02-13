@@ -15,6 +15,10 @@ I buy a lot of bundles and only have a vague idea of most of the games in my lib
 
 Author: Thaddeus Aid <thaddeus.aid@gmail.com>
 
+## Secrets.java
+You will see mention of com.ditherstop.app.Secrets.java this is a class that will hold the passwords and connection information to attach to Google App engine and the MySql db etc.
+ it will be a public class with a series of final Strings for use in the rest of the program.
+
 ## Project Setup
 Install [Apache Maven][1] and [Karma][2] if you haven't. See the links
 for install instructions. Update the `angular-seed` submodule with the
