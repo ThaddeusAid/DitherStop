@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.google.appengine.samples.angularjs_guestbook.rest;
+package com.ditherstop.app.rest;
 
+import com.ditherstop.app.domain.GuestbookResponse;
+import com.ditherstop.app.domain.UserServiceInfo;
 import com.google.appengine.api.datastore.*;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
-import com.google.appengine.samples.angularjs_guestbook.domain.Greeting;
-import com.google.appengine.samples.angularjs_guestbook.domain.GuestbookResponse;
-import com.google.appengine.samples.angularjs_guestbook.domain.UserServiceInfo;
+import com.ditherstop.app.domain.Greeting;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

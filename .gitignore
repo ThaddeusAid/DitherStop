@@ -45,4 +45,8 @@ ehthumbs.db
 Thumbs.db
 
 #IntelliJ config files
-/.idea/
+.idea/
+
+#Secrets for for public information
+src\main\java\com\ditherstop\app\Secrets.java
+

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.appengine.samples.angularjs_guestbook.domain;
+package com.ditherstop.app.domain;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;

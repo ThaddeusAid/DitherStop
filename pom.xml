@@ -34,6 +34,21 @@
   </properties>
 
   <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
+    <!-- Web scraper -->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.7.2</version>
+    </dependency>
+
+    <!-- Steam API wrapper -->
+    <dependency>
+      <groupId>com.github.go-ive</groupId>
+      <artifactId>steam-api</artifactId>
+      <version>5.0</version>
+    </dependency>
+
     <!-- Compile/runtime dependencies -->
     <dependency>
       <groupId>com.google.appengine</groupId>
