@@ -22,8 +22,8 @@ package com.ditherstop.app.config;
  * Date: 4/5/13
  * Time: 2:57 AM
  */
-import com.ditherstop.app.rest.GsonMessageBodyHandler;
-import com.ditherstop.app.rest.GuestbookResource;
+
+import com.ditherstop.app.rest.DitherStopServlet;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,9 +32,8 @@ import javax.ws.rs.core.Application;
 public class Resources extends Application {
   @Override
   public Set<Class<?>> getClasses() {
-    Set<Class<?>> s = new HashSet<Class<?>>();
-    s.add(GuestbookResource.class);
-    s.add(GsonMessageBodyHandler.class);
+    Set<Class<?>> s = new HashSet<>();
+    s.add(DitherStopServlet.class);
     return s;
   }
 }

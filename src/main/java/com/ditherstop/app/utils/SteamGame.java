@@ -6,19 +6,19 @@ import java.util.ArrayList;
  * Created by aid on 2/12/2017.
  */
 public class SteamGame {
-  public long id; // reusing Steam Ids
+  public int id; // reusing Steam Ids
   public String name; // Using Steam names
-  public String genre; // Using Steam genres
+  public ArrayList<String> genres; // Using Steam genres
   public ArrayList<String> tags; // Using Steam tags
-  public long alltimePositive; // Using Steam ratings
-  public long alltimeNegative; // Using Steam ratings
-  public long recentPositive; // Using Steam ratings
-  public long recentNegative; // Using Steam ratings
+  public int alltimePositive; // Using Steam ratings
+  public int alltimeNegative; // Using Steam ratings
+  public int recentPositive; // Using Steam ratings
+  public int recentNegative; // Using Steam ratings
   public double alltimeRatio; // Using Steam ratings
   public double recentRatio; // Using Steam ratings
   public double derivedRatio; // Using Steam ratings
 
-  public SteamGame (long id, String name) {
+  public SteamGame (int id, String name) {
     this.id = id;
     this.name = name;
   }

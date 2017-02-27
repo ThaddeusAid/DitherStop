@@ -1,10 +1,15 @@
 /* app css stylesheet */
 
+html {
+  height: 100%;
+}
+
 body {
-  background: #B3D9F2;
-  margin:0;
-  padding:0;
-  height:100%;
+  background: black;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  text-align: center;
 }
 
 .user_info {
@@ -12,10 +17,26 @@ body {
   float: right;
 }
 
+#header {
+  text-align: center;
+}
+
 #footer {
-   position:absolute;
-   bottom:0;
-   width: 100%;
-   background: #A3C9E2;
-   font-style: italic;
+  bottom: 0;
+  width: 100%;
+  font-style: italic;
+  text-align: center;
+}
+
+#wrapper {
+  width: 1000px;
+  height: 100%;
+  background: white;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+
+h1 {
+  color: black;
 }

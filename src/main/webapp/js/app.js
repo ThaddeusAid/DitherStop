@@ -17,18 +17,18 @@
 'use strict';
 
 // Declare app level module which depends on filters, and services
-angular.module('guestbook', [
-  'guestbook.filters',
-  'guestbook.services',
-  'guestbook.directives',
-  'ngSanitize',
+var app = angular.module('ditherstop', [
   'ngRoute'
 ])
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider
-  .when('/:guestbookName', {
-    controller: 'GuestbookCtrl',
-    templateUrl: 'guestbook.html'
-  })
-  .otherwise({ redirectTo: '/default' });
+    .when('/', {
+      controller: 'mainCtrl',
+      templateUrl: 'templates/main.html'
+    })
+  .otherwise({ redirectTo: '/' });
 }]);
+
+app.controller('mainCtrl', function($scope) {
+  $scope.name = 'Thad';
+});

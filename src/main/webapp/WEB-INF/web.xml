@@ -39,6 +39,10 @@
     follows in order to minimize the startup time of your application.
     -->
     <init-param>
+      <param-name>com.sun.jersey.config.property.packages</param-name>
+      <param-value>com.ditherstop.app.config</param-value>
+    </init-param>
+    <init-param>
       <param-name>javax.ws.rs.Application</param-name>
       <param-value>com.ditherstop.app.config.Resources</param-value>
     </init-param>
