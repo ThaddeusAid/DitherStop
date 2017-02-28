@@ -8,12 +8,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.*;
 
 /**
  * Created by aid on 2/12/2017.
  */
-public class SteamScraper {
+public class SteamScraper implements Runnable{
 
   public static void main(String[] args) {
     SteamScraper scraper = new SteamScraper();
@@ -38,60 +42,134 @@ public class SteamScraper {
     Object[] keys = appList.keySet().toArray();
     SteamGame[] games = new SteamGame[keys.length];
 
-    System.out.println(keys.length + " first " + (Integer) keys[0]);
     Map<String, String> cookies = new HashMap<String, String>();
     cookies.put("mature_content", "1");
     cookies.put("birthtime", "185961601");
     cookies.put("lastagecheckage", "23-November-1975");
 
     try {
-//      for (int i = 0; i < keys.length; i++){
-      SteamGame newGame = new SteamGame((Integer) keys[0], appList.get(keys[0]));
-      System.out.println("" + newGame.name);
-      Document gamePage = Jsoup.connect("http://store.steampowered.com/app/" + (Integer) keys[0] + "/").userAgent("Mozilla").cookies(cookies).get();
-      Elements tags = gamePage.getElementsByClass("app_tag");
+      Connection con = null;
+      Statement statement = null;
+      PreparedStatement preparedStatement = null;
 
-      // extract tags
-      newGame.tags = new ArrayList<String>();
-      for (int j = 0; j < tags.size(); j++) {
-        if (tags.get(j).tag().toString().equalsIgnoreCase("a")) {
-          newGame.tags.add(tags.get(j).text());
-        }
-      }
+      Class.forName("org.sqlite.JDBC");
+      con = DriverManager.getConnection("jdbc:sqlite:ditherstop.db");
+      System.out.println("Opened database successfully");
 
-      // extract genres
-      Elements details = gamePage.getElementsByClass("details_block");
-      newGame.genres = new ArrayList<String>();
-      for (int j = 0; j < details.size(); j++){
-        Elements aTags = details.get(j).getElementsByTag("a");
-        for(int k = 0; k < aTags.size(); k++){
-          if(aTags.get(k).toString().contains("genre")){
-            newGame.genres.add(aTags.get(k).text());
+      statement = con.createStatement();
+
+      String query = "create table if not exists Games (id INT PRIMARY KEY NOT NULL, name TEXT NOT NULL, positive INT, negative INT, ratio REAL);";
+      statement.executeUpdate(query);
+      query = "create table if not exists Tags (id INT NOT NULL, tag TEXT NOT NULL);";
+      statement.executeUpdate(query);
+      query = "create table if not exists Genres (id INT NOT NULL, genre TEXT NOT NULL);";
+      statement.executeUpdate(query);
+
+      for (int i = 0; i < keys.length; i++) {
+        try {
+          System.out.println("Adding: " + appList.get(keys[i]));
+          Document gamePage;
+          try {
+            gamePage = Jsoup.connect("http://store.steampowered.com/app/" + (Integer) keys[i] + "/").userAgent("Mozilla").cookies(cookies).get();
+          } catch (Exception e) {
+            e.printStackTrace();
+            continue;
           }
+          Elements tags = gamePage.getElementsByClass("app_tag");
+
+          // extract tags
+          query = "delete from Tags where id = " + (Integer) keys[i] + ";";
+          statement.executeUpdate(query);
+
+          System.out.println("Getting Tags");
+          query = "INSERT INTO Tags (id, tag) values (?, ?);";
+          preparedStatement = con.prepareStatement(query);
+          for (int j = 0; j < tags.size(); j++) {
+            if (tags.get(j).tag().toString().equalsIgnoreCase("a")) {
+              preparedStatement.setInt(1, (Integer) keys[i]);
+              preparedStatement.setString(2, tags.get(j).text());
+              preparedStatement.addBatch();
+            }
+          }
+          int[] updateCounts = preparedStatement.executeBatch();
+          for (int j = 0; j < updateCounts.length; j++) {
+            if (!(updateCounts[j] >= 0)) {
+              System.out.println("Error! Tags not entered correctly!");
+            }
+          }
+
+          // extract genres
+          System.out.println("Getting Genres");
+          query = "delete from Genres where id = " + (Integer) keys[i] + ";";
+          statement.executeUpdate(query);
+
+          query = "INSERT INTO Genres (id, genre) values (?, ?);";
+          preparedStatement = con.prepareStatement(query);
+
+          Elements details = gamePage.getElementsByClass("details_block");
+          for (int j = 0; j < details.size(); j++) {
+            Elements aTags = details.get(j).getElementsByTag("a");
+            for (int k = 0; k < aTags.size(); k++) {
+              if (aTags.get(k).toString().contains("genre")) {
+                preparedStatement.setInt(1, (Integer) keys[i]);
+                preparedStatement.setString(2, aTags.get(k).text());
+                preparedStatement.addBatch();
+              }
+            }
+          }
+          updateCounts = preparedStatement.executeBatch();
+          for (int j = 0; j < updateCounts.length; j++) {
+            if (!(updateCounts[j] >= 0)) {
+              System.out.println("Error! Genres not entered correctly!");
+            }
+          }
+
+          // extract reviews
+          int alltimePositive = 0;
+          Elements positiveReviews = gamePage.getElementsByAttributeValue("for", "review_type_positive");
+          if (positiveReviews.size() > 0) {
+            String temp = positiveReviews.get(0).getElementsByClass("user_reviews_count").text().toString().replaceAll(",", "");
+            temp = temp.substring(1, temp.length() - 1);
+            alltimePositive = Integer.parseInt(temp);
+          }
+
+          int alltimeNegative = 0;
+          Elements negativeReviews = gamePage.getElementsByAttributeValue("for", "review_type_negative");
+          if (negativeReviews.size() > 0) {
+            String temp = negativeReviews.get(0).getElementsByClass("user_reviews_count").text().toString().replaceAll(",", "");
+            temp = temp.substring(1, temp.length() - 1);
+            alltimeNegative = Integer.parseInt(temp);
+          }
+
+          double alltimeRatio = (double) alltimePositive / ((double) alltimeNegative + 10);
+
+          System.out.println("" + alltimeRatio);
+
+          query = "REPLACE INTO Games (id, name, positive, negative, ratio) values (?, ?, ?, ?, ?);";
+          preparedStatement = con.prepareStatement(query);
+          preparedStatement.setInt(1, (Integer) keys[i]);
+          preparedStatement.setString(2, appList.get(keys[i]));
+          preparedStatement.setInt(3, alltimePositive);
+          preparedStatement.setInt(4, alltimeNegative);
+          preparedStatement.setDouble(5, alltimeRatio);
+          updateCounts = preparedStatement.executeBatch();
+          for (int j = 0; j < updateCounts.length; j++) {
+            if (!(updateCounts[j] >= 0)) {
+              System.out.println("Error! Genres not entered correctly!");
+            }
+          }
+          Thread.sleep(1000);
+        }catch(Exception e){
+          e.printStackTrace();
         }
       }
 
-      // extract reviews
-      Elements positiveReviews = gamePage.getElementsByAttributeValue("for", "review_type_positive");
-      String temp = positiveReviews.get(0).getElementsByClass("user_reviews_count").text().toString().replaceAll(",", "");
-      temp = temp.substring(1, temp.length() - 1);
-      newGame.alltimePositive = Integer.parseInt(temp);
-
-      Elements negativeReviews = gamePage.getElementsByAttributeValue("for", "review_type_negative");
-      temp = negativeReviews.get(0).getElementsByClass("user_reviews_count").text().toString().replaceAll(",", "");
-      temp = temp.substring(1, temp.length() - 1);
-      newGame.alltimeNegative = Integer.parseInt(temp);
-
-      newGame.makeAlltimeRatio();
-
-      System.out.println("" + newGame.alltimeRatio);
-
-//      System.out.println(details);
-//      System.out.println(reviews);
-
-//      }
+      preparedStatement.close();
+      statement.close();
+      con.close();
     } catch (Exception e) {
       e.printStackTrace();
     }
+
   }
 }
