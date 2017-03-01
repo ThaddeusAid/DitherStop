@@ -3,10 +3,12 @@ package com.ditherstop.app.scraper;
 import com.ditherstop.app.utils.SteamGame;
 import com.github.goive.steamapi.SteamApi;
 import com.github.goive.steamapi.exceptions.SteamApiException;
+import org.apache.log4j.Level;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import java.util.logging.Logger;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -18,6 +20,7 @@ import java.util.*;
  * Created by aid on 2/12/2017.
  */
 public class SteamScraper implements Runnable{
+  private static final Logger log = Logger.getLogger(SteamScraper.class.getName());
 
   public static void main(String[] args) {
     SteamScraper scraper = new SteamScraper();
@@ -25,6 +28,7 @@ public class SteamScraper implements Runnable{
   }
 
   public void run() {
+    log.info("Starting Scraping Service");
     // Country codes are always 2 letter. Also possible to use the getCountry() method from Locale
     SteamApi steamApi = new SteamApi("US");
     Map<Integer, String> appList = new HashMap<Integer, String>();
@@ -40,7 +44,7 @@ public class SteamScraper implements Runnable{
 
     // scrape information from store.steampowered.com
     Object[] keys = appList.keySet().toArray();
-    SteamGame[] games = new SteamGame[keys.length];
+    Collections.shuffle(Arrays.asList(keys));
 
     Map<String, String> cookies = new HashMap<String, String>();
     cookies.put("mature_content", "1");
@@ -54,7 +58,7 @@ public class SteamScraper implements Runnable{
 
       Class.forName("org.sqlite.JDBC");
       con = DriverManager.getConnection("jdbc:sqlite:ditherstop.db");
-      System.out.println("Opened database successfully");
+      log.info("Opened database successfully");
 
       statement = con.createStatement();
 
@@ -66,8 +70,11 @@ public class SteamScraper implements Runnable{
       statement.executeUpdate(query);
 
       for (int i = 0; i < keys.length; i++) {
+        if(i % 1000 == 0){ // track the progress in the logs
+          log.info("Scraped: " + i + " of " + keys.length);
+        }
+
         try {
-          System.out.println("Adding: " + appList.get(keys[i]));
           Document gamePage;
           try {
             gamePage = Jsoup.connect("http://store.steampowered.com/app/" + (Integer) keys[i] + "/").userAgent("Mozilla").cookies(cookies).get();
@@ -81,7 +88,6 @@ public class SteamScraper implements Runnable{
           query = "delete from Tags where id = " + (Integer) keys[i] + ";";
           statement.executeUpdate(query);
 
-          System.out.println("Getting Tags");
           query = "INSERT INTO Tags (id, tag) values (?, ?);";
           preparedStatement = con.prepareStatement(query);
           for (int j = 0; j < tags.size(); j++) {
@@ -94,12 +100,11 @@ public class SteamScraper implements Runnable{
           int[] updateCounts = preparedStatement.executeBatch();
           for (int j = 0; j < updateCounts.length; j++) {
             if (!(updateCounts[j] >= 0)) {
-              System.out.println("Error! Tags not entered correctly!");
+              log.info("Error! Tags not entered correctly!");
             }
           }
 
           // extract genres
-          System.out.println("Getting Genres");
           query = "delete from Genres where id = " + (Integer) keys[i] + ";";
           statement.executeUpdate(query);
 
@@ -120,7 +125,7 @@ public class SteamScraper implements Runnable{
           updateCounts = preparedStatement.executeBatch();
           for (int j = 0; j < updateCounts.length; j++) {
             if (!(updateCounts[j] >= 0)) {
-              System.out.println("Error! Genres not entered correctly!");
+              log.info("Error! Genres not entered correctly!");
             }
           }
 
@@ -143,8 +148,6 @@ public class SteamScraper implements Runnable{
 
           double alltimeRatio = (double) alltimePositive / ((double) alltimeNegative + 10);
 
-          System.out.println("" + alltimeRatio);
-
           query = "REPLACE INTO Games (id, name, positive, negative, ratio) values (?, ?, ?, ?, ?);";
           preparedStatement = con.prepareStatement(query);
           preparedStatement.setInt(1, (Integer) keys[i]);
@@ -155,7 +158,7 @@ public class SteamScraper implements Runnable{
           updateCounts = preparedStatement.executeBatch();
           for (int j = 0; j < updateCounts.length; j++) {
             if (!(updateCounts[j] >= 0)) {
-              System.out.println("Error! Genres not entered correctly!");
+              log.info("Error! Genres not entered correctly!");
             }
           }
           Thread.sleep(1000);

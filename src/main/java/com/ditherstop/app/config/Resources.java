@@ -32,13 +32,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import javax.ws.rs.core.Application;
 
 public class Resources extends Application {
   private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+  private static final Logger log = Logger.getLogger(Resources.class.getName());
 
   @Override
   public Set<Class<?>> getClasses() {
+    log.info("Is this even on?");
     // start the scrape and let it run once a day
     final SteamScraper scraper = new SteamScraper();
     final ScheduledFuture<?> scraperHandle = scheduler.scheduleAtFixedRate(scraper, 0, 1, TimeUnit.DAYS);
