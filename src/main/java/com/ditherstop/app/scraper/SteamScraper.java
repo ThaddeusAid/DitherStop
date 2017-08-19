@@ -49,7 +49,7 @@ public class SteamScraper implements Runnable{
     Map<String, String> cookies = new HashMap<String, String>();
     cookies.put("mature_content", "1");
     cookies.put("birthtime", "185961601");
-    cookies.put("lastagecheckage", "23-November-1975");
+    cookies.put("lastagecheckage", "3-April-1975");
 
     try {
       Connection con = null;
